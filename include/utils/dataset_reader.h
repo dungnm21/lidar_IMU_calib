@@ -143,9 +143,9 @@ public:
           sensor_msgs::PointCloud2::ConstPtr scan_msg =
                   m.instantiate<sensor_msgs::PointCloud2>();
           timestamp = scan_msg->header.stamp.toSec();
-          std::cout << "read rosbag - step 3" << std::endl;
+          // std::cout << "read rosbag - step 3" << std::endl;
           p_LidarConvert_->unpack_scan(scan_msg, pointcloud);
-          std::cout << "read rosbag - step 4" << std::endl;
+          // std::cout << "read rosbag - step 4" << std::endl;
         }
 
         data_->scan_data_.emplace_back(pointcloud);

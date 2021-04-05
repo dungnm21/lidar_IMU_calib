@@ -120,19 +120,19 @@ private:
     for (int h = 0; h < scan_raw.height; h++) {
       for (int w = 0; w < scan_raw.width; w++) {
         VPoint vpoint;
-        if (pcl_isnan(scan_raw.at(w,h).x)) {
+        if (pcl_isnan(scan_raw.at(h * scan_raw.width + w).x)) {
           vpoint = NanPoint;
-          scan_in_target->at(w,h) = vpoint;
+          scan_in_target->at(h * scan_raw.width + w) = vpoint;
           continue;
         }
-        double point_timestamp = scan_raw.at(w,h).timestamp;
+        double point_timestamp = scan_raw.at(h * scan_raw.width + w).timestamp;
         Eigen::Quaterniond q_Lk_to_G;
         Eigen::Vector3d p_Lk_in_G;
         if (!traj_manager_->evaluateLidarPose(point_timestamp, q_Lk_to_G, p_Lk_in_G)) {
           continue;
         }
         Eigen::Quaterniond q_LktoL0 = q_G_to_target * q_Lk_to_G;
-        Eigen::Vector3d p_Lk(scan_raw.at(w,h).x, scan_raw.at(w,h).y, scan_raw.at(w,h).z);
+        Eigen::Vector3d p_Lk(scan_raw.at(h * scan_raw.width + w).x, scan_raw.at(h * scan_raw.width + w).y, scan_raw.at(h * scan_raw.width + w).z);
 
         Eigen::Vector3d point_out;
         if (!correct_position) {
@@ -144,8 +144,8 @@ private:
         vpoint.x = point_out(0);
         vpoint.y = point_out(1);
         vpoint.z = point_out(2);
-        vpoint.intensity = scan_raw.at(w,h).intensity;
-        scan_in_target->at(w,h) = vpoint;
+        vpoint.intensity = scan_raw.at(h * scan_raw.width + w).intensity;
+        scan_in_target->at(h * scan_raw.width + w) = vpoint;
       }
     }
   }

@@ -141,16 +141,16 @@ void SurfelAssociation::getAssociation(const VPointCloud::Ptr& scan_inM,
   for (int w = 0; w < width; w++) {
     for (int h = 0; h < height; h++) {
       if (associatedFlag[ h * width + w] == -1
-          || 0 == scan_raw->at(w,h).timestamp)
+          || 0 == scan_raw->at(h * width + w).timestamp)
         continue;
-      spoint.point = Eigen::Vector3d(scan_raw->at(w,h).x,
-                                     scan_raw->at(w,h).y,
-                                     scan_raw->at(w,h).z);
-      spoint.point_in_map = Eigen::Vector3d(scan_inM->at(w,h).x,
-                                            scan_inM->at(w,h).y,
-                                            scan_inM->at(w,h).z);
+      spoint.point = Eigen::Vector3d(scan_raw->at(h * width + w).x,
+                                     scan_raw->at(h * width + w).y,
+                                     scan_raw->at(h * width + w).z);
+      spoint.point_in_map = Eigen::Vector3d(scan_inM->at(h * width + w).x,
+                                            scan_inM->at(h * width + w).y,
+                                            scan_inM->at(h * width + w).z);
       spoint.plane_id = associatedFlag[h*width+w];
-      spoint.timestamp = scan_raw->at(w,h).timestamp;
+      spoint.timestamp = scan_raw->at(h * width + w).timestamp;
 
       spoint_per_surfel_.at(spoint.plane_id).push_back(spoint);
       spoints_all_.push_back(spoint);
@@ -257,17 +257,34 @@ void SurfelAssociation::associateScanToSurfel(
   Eigen::Vector3d box_max = surfel_planes_.at(surfel_idx).boxMax;
   Eigen::Vector4d plane_coeffs = surfel_planes_.at(surfel_idx).p4;
 
-  for (int j = 0 ; j < scan->height; j++) {
-    std::vector<int> mask_per_ring;
-    for (int i=0; i< scan->width; i++) {
-      if (!pcl_isnan(scan->at(i,j).x) &&
-          scan->at(i,j).x > box_min[0] && scan->at(i,j).x < box_max[0] &&
-          scan->at(i,j).y > box_min[1] && scan->at(i,j).y < box_max[1] &&
-          scan->at(i,j).z > box_min[2] && scan->at(i,j).z < box_max[2]) {
+  // for (int h = 0 ; h < scan->height; h++) {
+  //   std::vector<int> mask_per_ring;
+  //   for (int w=0; w< scan->width; w++) {
+  //     if (!pcl_isnan(scan->at(w,h).x) &&
+  //         scan->at(w,h).x > box_min[0] && scan->at(w,h).x < box_max[0] &&
+  //         scan->at(w,h).y > box_min[1] && scan->at(w,h).y < box_max[1] &&
+  //         scan->at(w,h).z > box_min[2] && scan->at(w,h).z < box_max[2]) {
 
-          Eigen::Vector3d point(scan->at(i,j).x, scan->at(i,j).y, scan->at(i,j).z);
+  //         Eigen::Vector3d point(scan->at(w,h).x, scan->at(w,h).y, scan->at(w,h).z);
+  //         if (point2PlaneDistance(point, plane_coeffs) <= radius) {
+  //           mask_per_ring.push_back(w);
+  //         }
+  //     }
+  //   } // end of one colmun (ring)
+  //   ring_masks.push_back(mask_per_ring);
+  // }
+
+  for (int h = 0 ; h < scan->height; h++) {
+    std::vector<int> mask_per_ring;
+    for (int w=0; w< scan->width; w++) {
+      if (!pcl_isnan(scan->at(h * scan->width + w).x) &&
+          scan->at(h * scan->width + w).x > box_min[0] && scan->at(h * scan->width + w).x < box_max[0] &&
+          scan->at(h * scan->width + w).y > box_min[1] && scan->at(h * scan->width + w).y < box_max[1] &&
+          scan->at(h * scan->width + w).z > box_min[2] && scan->at(h * scan->width + w).z < box_max[2]) {
+
+          Eigen::Vector3d point(scan->at(h * scan->width + w).x, scan->at(h * scan->width + w).y, scan->at(h * scan->width + w).z);
           if (point2PlaneDistance(point, plane_coeffs) <= radius) {
-            mask_per_ring.push_back(i);
+            mask_per_ring.push_back(w);
           }
       }
     } // end of one colmun (ring)
