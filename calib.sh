@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
-bag_path="/home/ha/rosbag/li_calib_data"
+bag_path="/home/maudzung/work/calibration/data/li_calib_data"
+# bag_path="/home/maudzung/work/calibration/data"
 
 outdoor_sync_bag_name=(
-#"Court-01.bag"
+# "Court-01.bag"
 #"Court-02.bag"
 #"Court-03.bag"
 #"Court-04.bag"
 #"Court-05.bag"
+# "2021-01-12-17-47-22.bag",
+"record_court_1.bag"
 )
 
 indoor_sync_bag_name=(
-"Garage-01.bag"
+# "Garage-01.bag"
 #"Garage-02.bag"
 #"Garage-03.bag"
 #"Garage-04.bag"
@@ -20,14 +23,18 @@ indoor_sync_bag_name=(
 
 imu_topic_name=(
 "/imu1/data_sync"
-#"/imu2/data_sync"
+# "/imu2/data_sync"
 #"/imu3/data_sync"
+# "/imu/data"
 )
 
 bag_start=1
 bag_durr=30
 scan4map=15
 timeOffsetPadding=0.015
+# topic_lidar="/velodyne_packets"
+# topic_lidar="/lidar_front/velodyne_points"
+topic_lidar="/velodyne_points"
 
 show_ui=true  #false
 
@@ -47,6 +54,7 @@ for i in "${!sync_bag_name[@]}"; do
         echo "topic_imu:=${imu_topic_name[j]}"
         echo "path_bag:=${path_bag}"
         echo "ndtResolution:=${ndtResolution}"
+        echo "topic_lidar:=${topic_lidar}"
         echo "=============="
 
         roslaunch li_calib licalib_gui.launch \
@@ -58,6 +66,7 @@ for i in "${!sync_bag_name[@]}"; do
                           lidar_model:="VLP_16" \
                           time_offset_padding:="${timeOffsetPadding}"\
                           ndtResolution:="${ndtResolution}" \
-                          show_ui:="${show_ui}"
+                          show_ui:="${show_ui}" \
+                          topic_lidar:="${topic_lidar}"
     done
 done
