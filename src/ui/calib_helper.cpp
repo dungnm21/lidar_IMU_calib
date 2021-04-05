@@ -77,6 +77,9 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
   scan4map_time_ = map_time_ + scan4map;
   double end_time = dataset_reader_->get_end_time();
 
+  std::cout << "CalibrHelper - map_time_: " << map_time_ << ", scan4map_time_: " << scan4map_time_;
+  std::cout << ", end_time: " << end_time << std::endl;
+
   traj_manager_ = std::make_shared<TrajectoryManager>(
           map_time_, end_time, knot_distance, time_offset_padding);
 
@@ -111,9 +114,12 @@ void CalibrHelper::Initialization() {
   }
   traj_manager_->initialSO3TrajWithGyro();
 
-  for(const TPointCloud& raw_scan: dataset_reader_->get_scan_data()) {
+  const auto& full_raw_scan = dataset_reader_->get_scan_data();
+  for(const TPointCloud& raw_scan: full_raw_scan) {
     VPointCloud::Ptr cloud(new VPointCloud);
-    TPointCloud2VPointCloud(raw_scan.makeShared(), cloud);
+    // TODO: Unify 2 fuctions 
+    // TPointCloud2VPointCloud(raw_scan.makeShared(), cloud);
+    TPointCloud2VPointCloud_unordered(raw_scan.makeShared(), cloud);
     double scan_timestamp = pcl_conversions::fromPCL(raw_scan.header.stamp).toSec();
 
     lidar_odom_->feedScan(scan_timestamp, cloud);

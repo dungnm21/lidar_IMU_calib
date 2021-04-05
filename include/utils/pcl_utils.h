@@ -83,5 +83,24 @@ inline void TPointCloud2VPointCloud(TPointCloud::Ptr input_pc,
   }
 }
 
+inline void TPointCloud2VPointCloud_unordered(TPointCloud::Ptr input_pc,
+                                    licalib::VPointCloud::Ptr output_pc) {
+  output_pc->header = input_pc->header;
+  output_pc->height = input_pc->height;
+  output_pc->width = input_pc->width;
+  output_pc->is_dense = input_pc->is_dense;
+  output_pc->resize(output_pc->width * output_pc->height);
+  for(int h = 0; h < input_pc->height; h++) {
+    for(int w = 0; w < input_pc->width; w++) {
+      licalib::VPoint point;
+      point.x = input_pc->at(h * input_pc->width + w).x;
+      point.y = input_pc->at(h * input_pc->width + w).y;
+      point.z = input_pc->at(h * input_pc->width + w).z;
+      point.intensity = input_pc->at(h * input_pc->width + w).intensity;
+      output_pc->at(h * input_pc->width + w) = point;
+    }
+  }
+}
+
 
 #endif
