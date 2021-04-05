@@ -162,17 +162,33 @@ public:
     outPointCloud.resize(outPointCloud.height * outPointCloud.width);
 
     double timebase = lidarMsg->header.stamp.toSec();
+
+    std::cout << "unpack_scan - PointCloud2 - step 2 - timebase: " << timebase;
+    std::cout << ", height: " << outPointCloud.height << ", width: " << outPointCloud.width << std::endl;
     for (int h = 0; h < temp_pc.height; h++) {
       for (int w = 0; w < temp_pc.width; w++) {
         TPoint point;
-        point.x = temp_pc.at(w,h).x;
-        point.y = temp_pc.at(w,h).y;
-        point.z = temp_pc.at(w,h).z;
-        point.intensity = temp_pc.at(w,h).intensity;
-        point.timestamp = timebase + getExactTime(h,w);
-        outPointCloud.at(w,h) = point;
+        point.x = temp_pc.at(h * temp_pc.width + w).x;
+        // std::cout << "unpack_scan - PointCloud2 - step 2 - x = " << point.x << std::endl;
+        point.y = temp_pc.at(h * temp_pc.width + w).y;
+        point.z = temp_pc.at(h * temp_pc.width + w).z;
+        point.intensity = temp_pc.at(h * temp_pc.width + w).intensity;
+
+        // float distance = std::sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
+        // if (!pointInRange(distance)) {
+        //   point.x = NAN;
+        //   point.y = NAN;
+        //   point.z = NAN;
+        //   point.intensity = 0;
+        // }
+
+        // point.timestamp = timebase + getExactTime(h,w);
+        point.timestamp = timebase;
+        outPointCloud.at(h * temp_pc.width + w) = point;
+        // outPointCloud.at(w, h) = point;
       }
     }
+    std::cout << "unpack_scan - PointCloud2 - step 3" << std::endl;
   }
 
 
