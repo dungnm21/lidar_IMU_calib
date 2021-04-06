@@ -29,6 +29,7 @@
 #include <angles/angles.h>
 #include <iostream>
 #include <vector>
+#include <limits>
 
 #include <utils/pcl_utils.h>
 
@@ -156,22 +157,57 @@ public:
 
     outPointCloud.clear();
     outPointCloud.header = pcl_conversions::toPCL(lidarMsg->header);
-    outPointCloud.height = temp_pc.height;
-    outPointCloud.width = temp_pc.width;
+    outPointCloud.height = 16;
+    // outPointCloud.width = 1824;
+    outPointCloud.width = static_cast<int>(360. / 0.4 * 2);
     outPointCloud.is_dense = false;
     outPointCloud.resize(outPointCloud.height * outPointCloud.width);
 
     double timebase = lidarMsg->header.stamp.toSec();
-    for (int h = 0; h < temp_pc.height; h++) {
-      for (int w = 0; w < temp_pc.width; w++) {
-        TPoint point;
-        point.x = temp_pc.at(w,h).x;
-        point.y = temp_pc.at(w,h).y;
-        point.z = temp_pc.at(w,h).z;
-        point.intensity = temp_pc.at(w,h).intensity;
-        point.timestamp = timebase + getExactTime(h,w);
-        outPointCloud.at(w,h) = point;
+
+    float min_theta = std::numeric_limits<float>::max();
+    float max_theta = std::numeric_limits<float>::min();
+
+    float min_pitch = std::numeric_limits<float>::max();
+    float max_pitch = std::numeric_limits<float>::min();
+
+    const float kMin_pitch = -0.261799; // -15 degrees
+    const float kRes_pitch = 2. / 180. * M_PI; // 2 degrees of resolution
+    const float kMin_theta = -M_PI; // -180 degrees
+    const float kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
+
+    for (int pid = 0; pid < temp_pc.size(); ++pid) {
+      TPoint point;
+      point.x = temp_pc.at(pid).x;
+      point.y = temp_pc.at(pid).y;
+      point.z = temp_pc.at(pid).z;
+      point.intensity = temp_pc.at(pid).intensity;
+
+      float r = std::sqrt(point.x * point.x + point.y * point.y);
+      float distance = std::sqrt(r * r + point.z * point.z);
+      if (!pointInRange(distance)) {
+        point.x = NAN;
+        point.y = NAN;
+        point.z = NAN;
+        point.intensity = 0;
       }
+
+      float theta = std::atan2(point.x, point.y);
+      float pitch = std::atan2(point.z, r);
+
+      // min_theta = std::min(min_theta, theta);
+      // max_theta = std::max(max_theta, theta);
+
+      // min_pitch = std::min(min_pitch, pitch);
+      // max_pitch = std::max(max_pitch, pitch);
+
+      // Compute w, h
+      int h = static_cast<int>((pitch - kMin_pitch) / kRes_pitch);
+      int w = static_cast<int>((theta - kMin_theta) / kRes_theta);
+
+      point.timestamp = timebase + getExactTime(h,w);
+      
+      outPointCloud.at(w, h) = point;
     }
   }
 

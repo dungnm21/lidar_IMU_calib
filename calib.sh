@@ -36,6 +36,20 @@ timeOffsetPadding=0.015
 # topic_lidar="/lidar_front/velodyne_points"
 topic_lidar="/velodyne_points"
 
+# outdoor_sync_bag_name=(
+# "Court-01.bag"
+# )
+
+# indoor_sync_bag_name=(
+# # "Garage-01.bag"
+# )
+
+# imu_topic_name=(
+# "/imu1/data_sync"
+# )
+
+# topic_lidar="/velodyne_packets"
+
 show_ui=true  #false
 
 bag_count=-1
