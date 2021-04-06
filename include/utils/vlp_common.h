@@ -205,8 +205,8 @@ public:
       int h = static_cast<int>((pitch - kMin_pitch) / kRes_pitch);
       int w = static_cast<int>((theta - kMin_theta) / kRes_theta);
 
-      point.timestamp = timebase + getExactTime(h,w);
-      
+      point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second
+
       outPointCloud.at(w, h) = point;
     }
   }
