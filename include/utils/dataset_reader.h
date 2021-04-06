@@ -57,6 +57,7 @@ struct PoseData {
 enum LidarModelType {
     VLP_16,
     VLP_16_SIMU,
+    VLP_32C
 };
 
 class LioDataset {
@@ -87,6 +88,10 @@ public:
       case LidarModelType::VLP_16:
         p_LidarConvert_ = VelodyneCorrection::Ptr(
                 new VelodyneCorrection(VelodyneCorrection::ModelType::VLP_16));
+        break;
+      case LidarModelType::VLP_32C:
+        p_LidarConvert_ = VelodyneCorrection::Ptr(
+                new VelodyneCorrection(VelodyneCorrection::ModelType::VLP_32C));
         break;
       case LidarModelType::VLP_16_SIMU:
         p_LidarConvert_ = VelodyneCorrection::Ptr(
@@ -180,6 +185,10 @@ public:
     assert(imu_data.size() > 0 && "No IMU data. Check your bag and imu topic");
     assert(scan_data.size() > 0 && "No scan data. Check your bag and lidar topic");
 
+    // std::cout << "start - adjustDataset - scan_timestamps_.front(): " << scan_timestamps_.front() / 1000.;
+    // std::cout << ", scan_timestamps_.back(): " << scan_timestamps_.back() / 1000.;
+    // std::cout << ", size scan_timestamps_: " << scan_timestamps_.size() << ", size imu_data_: " << imu_data_.size() << std::endl;
+
     assert(scan_timestamps.front() < imu_data.back().timestamp
            && scan_timestamps.back() > imu_data.front().timestamp
            && "Unvalid dataset. Check your dataset.. ");
@@ -206,6 +215,8 @@ public:
       scan_data_.pop_back();
       scan_timestamps_.pop_back();
     }
+    // std::cout << "end - adjustDataset - ";
+    // std::cout << "size scan_timestamps_: " << scan_timestamps_.size() << ", size imu_data_: " << imu_data_.size() << std::endl;
     //std::cout<<"after adjust --> imu size : "<< imu_data_.size() << std::endl;
   }
 

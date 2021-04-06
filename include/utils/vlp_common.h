@@ -42,7 +42,8 @@ public:
 
   enum ModelType {
     VLP_16,
-    HDL_32E    // not support yet
+    VLP_32E,    // not support yet
+    VLP_32C
   };
 
   VelodyneCorrection(ModelType modelType = VLP_16) : m_modelType(modelType) {
@@ -157,11 +158,36 @@ public:
 
     outPointCloud.clear();
     outPointCloud.header = pcl_conversions::toPCL(lidarMsg->header);
-    outPointCloud.height = 16;
-    // outPointCloud.width = 1824;
-    outPointCloud.width = static_cast<int>(360. / 0.4 * 2);
-    outPointCloud.is_dense = false;
-    outPointCloud.resize(outPointCloud.height * outPointCloud.width);
+    float kMin_pitch;
+    float kRes_pitch;
+    float kMin_theta;
+    float kRes_theta;
+
+    if (m_modelType == ModelType::VLP_16) {
+      outPointCloud.height = 16;
+      // outPointCloud.width = 1824;
+      outPointCloud.width = static_cast<int>(360. / 0.4 * 2);
+      outPointCloud.is_dense = false;
+      outPointCloud.resize(outPointCloud.height * outPointCloud.width);
+
+      kMin_pitch = -0.261799; // min -15 degrees, max: 15 degree
+      kRes_pitch = 2. / 180. * M_PI; // 2 degrees of resolution
+      kMin_theta = -M_PI; // -180 degrees
+      kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
+    }
+    else if (m_modelType == ModelType::VLP_32C) { // sample data
+      outPointCloud.height = 32;
+      // outPointCloud.width = 1824;
+      outPointCloud.width = static_cast<int>(360. / 0.4 * 2);
+      outPointCloud.is_dense = false;
+      outPointCloud.resize(outPointCloud.height * outPointCloud.width);
+
+      // TODO: Check resolution
+      kMin_pitch = -0.436332; // min: -25 degrees, max: 15 degree
+      kRes_pitch = 1.25 / 180. * M_PI; // 2 degrees of resolution
+      kMin_theta = -M_PI; // -180 degrees // from printed log: -2.71521
+      kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
+    }
 
     double timebase = lidarMsg->header.stamp.toSec();
 
@@ -170,11 +196,6 @@ public:
 
     float min_pitch = std::numeric_limits<float>::max();
     float max_pitch = std::numeric_limits<float>::min();
-
-    const float kMin_pitch = -0.261799; // -15 degrees
-    const float kRes_pitch = 2. / 180. * M_PI; // 2 degrees of resolution
-    const float kMin_theta = -M_PI; // -180 degrees
-    const float kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
 
     for (int pid = 0; pid < temp_pc.size(); ++pid) {
       TPoint point;
@@ -191,24 +212,29 @@ public:
         point.z = NAN;
         point.intensity = 0;
       }
+      else {
+        float theta = std::atan2(point.x, point.y);
+        float pitch = std::atan2(point.z, r);
 
-      float theta = std::atan2(point.x, point.y);
-      float pitch = std::atan2(point.z, r);
+        // min_theta = std::min(min_theta, theta);
+        // max_theta = std::max(max_theta, theta);
 
-      // min_theta = std::min(min_theta, theta);
-      // max_theta = std::max(max_theta, theta);
+        // min_pitch = std::min(min_pitch, pitch);
+        // max_pitch = std::max(max_pitch, pitch);
 
-      // min_pitch = std::min(min_pitch, pitch);
-      // max_pitch = std::max(max_pitch, pitch);
+        // Compute w, h
 
-      // Compute w, h
-      int h = static_cast<int>((pitch - kMin_pitch) / kRes_pitch);
-      int w = static_cast<int>((theta - kMin_theta) / kRes_theta);
+        int h = static_cast<int>((pitch - kMin_pitch) / kRes_pitch);
+        int w = static_cast<int>((theta - kMin_theta) / kRes_theta);
 
-      point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second
-
-      outPointCloud.at(w, h) = point;
+        // std::cout << "theta = " << theta << ", pitch = " << pitch << ", w = " << w << ", h: " << h << std::endl;
+        point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second
+        outPointCloud.at(w, h) = point;
+      }
     }
+
+    // std::cout << "min_theta: " << min_theta << ", max_theta: " << max_theta;
+    // std::cout << "min_pitch: " << min_pitch << ", max_pitch: " << max_pitch;
   }
 
 

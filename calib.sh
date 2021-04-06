@@ -9,7 +9,6 @@ outdoor_sync_bag_name=(
 #"Court-03.bag"
 #"Court-04.bag"
 #"Court-05.bag"
-# "2021-01-12-17-47-22.bag",
 "record_court_1.bag"
 )
 
@@ -32,16 +31,14 @@ bag_start=1
 bag_durr=30
 scan4map=15
 timeOffsetPadding=0.015
-# topic_lidar="/velodyne_packets"
-# topic_lidar="/lidar_front/velodyne_points"
 topic_lidar="/velodyne_points"
+
+#################################
+
+# For VelodyneScan
 
 # outdoor_sync_bag_name=(
 # "Court-01.bag"
-# )
-
-# indoor_sync_bag_name=(
-# # "Garage-01.bag"
 # )
 
 # imu_topic_name=(
@@ -49,6 +46,31 @@ topic_lidar="/velodyne_points"
 # )
 
 # topic_lidar="/velodyne_packets"
+
+
+lidar_model="VLP_16"
+
+#################################
+
+# For VAI data
+
+bag_path="/home/maudzung/work/calibration/data/vai"
+outdoor_sync_bag_name=(
+"2021-01-12-17-47-22.bag"
+)
+
+imu_topic_name=(
+"/imu/data"
+)
+
+bag_start=1
+bag_durr=30
+scan4map=15
+timeOffsetPadding=0.015
+topic_lidar="/lidar_front/velodyne_points"
+lidar_model="VLP_32C"
+
+#################################
 
 show_ui=true  #false
 
@@ -77,7 +99,7 @@ for i in "${!sync_bag_name[@]}"; do
                           bag_start:="${bag_start}" \
                           bag_durr:="${bag_durr}" \
                           scan4map:="${scan4map}" \
-                          lidar_model:="VLP_16" \
+                          lidar_model:=${lidar_model} \
                           time_offset_padding:="${timeOffsetPadding}"\
                           ndtResolution:="${ndtResolution}" \
                           show_ui:="${show_ui}" \
