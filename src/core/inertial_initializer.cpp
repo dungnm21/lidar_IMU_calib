@@ -71,7 +71,9 @@ bool InertialInitializer::EstimateRotation(
   Eigen::Quaterniond q_ItoS_est(x);
   Eigen::Vector4d cov = svd.singularValues();
 
-  if (cov(2) > 0.25) {
+  std::cout << "estimation - cov(2): " << cov(2) << std::endl;
+
+  if (cov(2) > 0.013) {
     q_ItoS_est_ = q_ItoS_est;
     rotaion_initialized_ = true;
     return true;

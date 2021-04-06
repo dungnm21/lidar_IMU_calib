@@ -52,25 +52,48 @@ lidar_model="VLP_16"
 
 #################################
 
-# For VAI data
+# For VAI Velodyne data
+
+# bag_path="/home/maudzung/work/calibration/data/vai"
+# outdoor_sync_bag_name=(
+# "2021-01-12-17-47-22.bag"
+# )
+
+# imu_topic_name=(
+# "/imu/data"
+# )
+
+# bag_start=1
+# bag_durr=30
+# scan4map=15
+# timeOffsetPadding=0.015
+# topic_lidar="/lidar_front/velodyne_points"
+# lidar_model="VLP_32C"
+
+#################################
+
+#################################
+
+# For VAI Hesai data
 
 bag_path="/home/maudzung/work/calibration/data/vai"
 outdoor_sync_bag_name=(
-"2021-01-12-17-47-22.bag"
+"2021-03-24-14-16-38.bag"
 )
 
 imu_topic_name=(
-"/imu/data"
+"/gps/imu"
 )
 
 bag_start=1
 bag_durr=30
 scan4map=15
 timeOffsetPadding=0.015
-topic_lidar="/lidar_front/velodyne_points"
-lidar_model="VLP_32C"
+topic_lidar="/hesai/pandar"
+lidar_model="PANDAR_64"
 
 #################################
+
 
 show_ui=true  #false
 

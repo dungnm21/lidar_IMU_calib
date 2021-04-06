@@ -57,7 +57,8 @@ struct PoseData {
 enum LidarModelType {
     VLP_16,
     VLP_16_SIMU,
-    VLP_32C
+    VLP_32C,
+    PANDAR_64
 };
 
 class LioDataset {
@@ -92,6 +93,10 @@ public:
       case LidarModelType::VLP_32C:
         p_LidarConvert_ = VelodyneCorrection::Ptr(
                 new VelodyneCorrection(VelodyneCorrection::ModelType::VLP_32C));
+        break;
+      case LidarModelType::PANDAR_64:
+        p_LidarConvert_ = VelodyneCorrection::Ptr(
+                new VelodyneCorrection(VelodyneCorrection::ModelType::PANDAR_64));
         break;
       case LidarModelType::VLP_16_SIMU:
         p_LidarConvert_ = VelodyneCorrection::Ptr(

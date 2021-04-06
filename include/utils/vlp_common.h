@@ -43,7 +43,8 @@ public:
   enum ModelType {
     VLP_16,
     VLP_32E,    // not support yet
-    VLP_32C
+    VLP_32C,
+    PANDAR_64
   };
 
   VelodyneCorrection(ModelType modelType = VLP_16) : m_modelType(modelType) {
@@ -184,7 +185,20 @@ public:
 
       // TODO: Check resolution
       kMin_pitch = -0.436332; // min: -25 degrees, max: 15 degree
-      kRes_pitch = 1.25 / 180. * M_PI; // 2 degrees of resolution
+      kRes_pitch = 40. / 32 / 180. * M_PI; // 2 degrees of resolution
+      kMin_theta = -M_PI; // -180 degrees // from printed log: -2.71521
+      kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
+    }
+    else if (m_modelType == ModelType::PANDAR_64) { // sample data
+      outPointCloud.height = 64;
+      // outPointCloud.width = 1824;
+      outPointCloud.width = static_cast<int>(360. / 0.4 * 2);
+      outPointCloud.is_dense = false;
+      outPointCloud.resize(outPointCloud.height * outPointCloud.width);
+
+      // TODO: Check resolution
+      kMin_pitch = -0.436472; // min: -25 degrees, max: 15 degree
+      kRes_pitch = 40. / 64 / 180. * M_PI; // 2 degrees of resolution
       kMin_theta = -M_PI; // -180 degrees // from printed log: -2.71521
       kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
     }
@@ -228,13 +242,13 @@ public:
         int w = static_cast<int>((theta - kMin_theta) / kRes_theta);
 
         // std::cout << "theta = " << theta << ", pitch = " << pitch << ", w = " << w << ", h: " << h << std::endl;
-        point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second
+        point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second // 55.56us for pandar64
         outPointCloud.at(w, h) = point;
       }
     }
 
     // std::cout << "min_theta: " << min_theta << ", max_theta: " << max_theta;
-    // std::cout << "min_pitch: " << min_pitch << ", max_pitch: " << max_pitch;
+    // std::cout << ", min_pitch: " << min_pitch << ", max_pitch: " << max_pitch << std::endl;
   }
 
 

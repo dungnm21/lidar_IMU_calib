@@ -65,6 +65,9 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
     else if (lidar_model == "VLP_32C") {
       lidar_model_type = IO::LidarModelType::VLP_32C;
     }
+    else if (lidar_model == "PANDAR_64") {
+      lidar_model_type = IO::LidarModelType::PANDAR_64;
+    }
     else {
       calib_step_ = Error;
       ROS_WARN("LiDAR model %s not support yet.", lidar_model.c_str());
@@ -93,6 +96,8 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
 
   surfel_association_ = std::make_shared<SurfelAssociation>(
           associated_radius_, plane_lambda_);
+  
+  std::cout << "end construction" << std::endl;
 }
 
 bool CalibrHelper::createCacheFolder(const std::string& bag_path) {
@@ -114,6 +119,8 @@ void CalibrHelper::Initialization() {
     traj_manager_->feedIMUData(imu_data);
   }
   traj_manager_->initialSO3TrajWithGyro();
+
+  std::cout << "Initialization - dataset_reader_->get_scan_data() size = " << dataset_reader_->get_scan_data().size() << std::endl;
 
   for(const TPointCloud& raw_scan: dataset_reader_->get_scan_data()) {
     VPointCloud::Ptr cloud(new VPointCloud);
@@ -137,6 +144,9 @@ void CalibrHelper::Initialization() {
       break;
     }
   }
+
+  std::cout << "odom_data_: " << lidar_odom_->get_odom_data().size() << std::endl;
+
   if (calib_step_ != InitializationDone)
     ROS_WARN("[Initialization] fails.");
 }
