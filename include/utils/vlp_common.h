@@ -153,7 +153,8 @@ public:
 
 
   void unpack_scan(const sensor_msgs::PointCloud2::ConstPtr &lidarMsg,
-                   TPointCloud &outPointCloud) const {
+                   TPointCloud &outPointCloud,
+                   const bool apply_timezone_offset) const {
     VPointCloud temp_pc;
     pcl::fromROSMsg(*lidarMsg, temp_pc);
 
@@ -202,8 +203,13 @@ public:
       kMin_theta = -M_PI; // -180 degrees // from printed log: -2.71521
       kRes_theta = 0.4 / 180. * M_PI; // 0.4 degrees
     }
-
-    double timebase = lidarMsg->header.stamp.toSec();
+    double timebase;
+    if (apply_timezone_offset) {
+      timebase = lidarMsg->header.stamp.toSec() - 25200;
+    }
+    else {
+      timebase = lidarMsg->header.stamp.toSec();
+    }
 
     float min_theta = std::numeric_limits<float>::max();
     float max_theta = std::numeric_limits<float>::min();

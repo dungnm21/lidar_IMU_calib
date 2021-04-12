@@ -40,6 +40,7 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
   double scan4map;
   double knot_distance;
   double time_offset_padding;
+  bool apply_timezone_offset;
 
   nh.param<std::string>("path_bag", bag_path_, "V1_01_easy.bag");
   nh.param<std::string>("topic_imu", topic_imu_, "/imu0");
@@ -50,6 +51,7 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
   nh.param<double>("ndtResolution", ndt_resolution_, 0.5);
   nh.param<double>("time_offset_padding", time_offset_padding, 0.015);
   nh.param<double>("knot_distance", knot_distance, 0.02);
+  nh.param<bool>("apply_timezone_offset", apply_timezone_offset, false);
 
   if (!createCacheFolder(bag_path_)) {
     calib_step_ = Error;
@@ -75,7 +77,7 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
     /// read dataset
     std::cout << "\nLoad dataset from " << bag_path_ << std::endl;
     IO::LioDataset lio_dataset_temp(lidar_model_type);
-    lio_dataset_temp.read(bag_path_, topic_imu_, topic_lidar, bag_start, bag_durr);
+    lio_dataset_temp.read(bag_path_, topic_imu_, topic_lidar, bag_start, bag_durr, apply_timezone_offset);
     dataset_reader_ = lio_dataset_temp.get_data();
     dataset_reader_->adjustDataset();
   }
@@ -96,8 +98,6 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
 
   surfel_association_ = std::make_shared<SurfelAssociation>(
           associated_radius_, plane_lambda_);
-  
-  std::cout << "end construction" << std::endl;
 }
 
 bool CalibrHelper::createCacheFolder(const std::string& bag_path) {
@@ -119,8 +119,6 @@ void CalibrHelper::Initialization() {
     traj_manager_->feedIMUData(imu_data);
   }
   traj_manager_->initialSO3TrajWithGyro();
-
-  std::cout << "Initialization - dataset_reader_->get_scan_data() size = " << dataset_reader_->get_scan_data().size() << std::endl;
 
   for(const TPointCloud& raw_scan: dataset_reader_->get_scan_data()) {
     VPointCloud::Ptr cloud(new VPointCloud);

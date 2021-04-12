@@ -112,7 +112,8 @@ public:
             const std::string imu_topic,
             const std::string lidar_topic,
             const double bag_start = -1.0,
-            const double bag_durr = -1.0) {
+            const double bag_durr = -1.0,
+            const bool apply_timezone_offset = false) {
 
     data_.reset(new LioDataset(lidar_model_));
     data_->bag_.reset(new rosbag::Bag);
@@ -151,8 +152,13 @@ public:
         if (m.getDataType() == std::string("sensor_msgs/PointCloud2")) {
           sensor_msgs::PointCloud2::ConstPtr scan_msg =
                   m.instantiate<sensor_msgs::PointCloud2>();
-          timestamp = scan_msg->header.stamp.toSec();
-          p_LidarConvert_->unpack_scan(scan_msg, pointcloud);
+          if (apply_timezone_offset) {
+            timestamp = scan_msg->header.stamp.toSec() - 25200;
+          }
+          else {
+            timestamp = scan_msg->header.stamp.toSec();
+          }
+          p_LidarConvert_->unpack_scan(scan_msg, pointcloud, apply_timezone_offset);
         }
 
         data_->scan_data_.emplace_back(pointcloud);

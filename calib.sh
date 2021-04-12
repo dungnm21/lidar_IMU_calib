@@ -76,21 +76,45 @@ lidar_model="VLP_16"
 
 # For VAI Hesai data
 
-bag_path="/home/maudzung/work/calibration/data/vai"
+# bag_path="/home/maudzung/work/calibration/data/vai"
+# outdoor_sync_bag_name=(
+# "2021-03-24-14-16-38.bag"
+# # "2021-03-24-14-19-01.bag"
+# )
+
+# imu_topic_name=(
+# "/gps/imu"
+# )
+
+# bag_start=1
+# bag_durr=30
+# scan4map=15
+# timeOffsetPadding=0.015
+# topic_lidar="/hesai/pandar"
+# lidar_model="PANDAR_64"
+
+#################################
+
+#################################
+
+# For VAI Hesai data 2021/04/08
+
+bag_path="/home/maudzung/work/calibration/data/data_20210408"
 outdoor_sync_bag_name=(
-"2021-03-24-14-16-38.bag"
+"tien_lui_trong_ham_no_asrr.bag"
 )
 
 imu_topic_name=(
-"/gps/imu"
+"/vehicle/imu/data_raw"
 )
 
 bag_start=1
 bag_durr=30
 scan4map=15
 timeOffsetPadding=0.015
-topic_lidar="/hesai/pandar"
+topic_lidar="/lidar/points_raw"
 lidar_model="PANDAR_64"
+apply_timezone_offset=true
 
 #################################
 
@@ -114,6 +138,7 @@ for i in "${!sync_bag_name[@]}"; do
         echo "path_bag:=${path_bag}"
         echo "ndtResolution:=${ndtResolution}"
         echo "topic_lidar:=${topic_lidar}"
+        echo "apply_timezone_offset:=${apply_timezone_offset}"
         echo "=============="
 
         roslaunch li_calib licalib_gui.launch \
@@ -127,5 +152,6 @@ for i in "${!sync_bag_name[@]}"; do
                           ndtResolution:="${ndtResolution}" \
                           show_ui:="${show_ui}" \
                           topic_lidar:="${topic_lidar}"
+                          apply_timezone_offset:="${apply_timezone_offset}"
     done
 done
