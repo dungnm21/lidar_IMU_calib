@@ -151,7 +151,7 @@ for i in "${!sync_bag_name[@]}"; do
                           time_offset_padding:="${timeOffsetPadding}"\
                           ndtResolution:="${ndtResolution}" \
                           show_ui:="${show_ui}" \
-                          topic_lidar:="${topic_lidar}"
+                          topic_lidar:="${topic_lidar}" \
                           apply_timezone_offset:="${apply_timezone_offset}"
     done
 done
