@@ -160,33 +160,24 @@ public:
 
     outPointCloud.clear();
     outPointCloud.header = pcl_conversions::toPCL(lidarMsg->header);
-    float res_pitch;
     float res_theta;
 
     if (m_modelType == ModelType::VLP_16) {
       outPointCloud.height = 16;
       // outPointCloud.width = 1824;
-      outPointCloud.width = static_cast<int>(360. / 0.2);
-      res_pitch = 2. / 180. * M_PI; // 2 degrees of resolution
-      res_theta = 0.4 / 180. * M_PI; // 0.4 degrees
+      res_theta = 0.2 / 180. * M_PI; // 0.2 degrees
     }
     else if (m_modelType == ModelType::VLP_32C) { // sample data
       outPointCloud.height = 32;
-      outPointCloud.width = static_cast<int>(360. / 0.2);
       // TODO: Check resolution
-      res_pitch = 40. / 32 / 180. * M_PI; // 2 degrees of resolution
-      res_theta = 0.2 / 180. * M_PI; // 0.4 degrees
+      res_theta = 0.2 / 180. * M_PI; // 0.2 degrees
     }
     else if (m_modelType == ModelType::PANDAR_64) { // sample data
       outPointCloud.height = 64;
-      outPointCloud.width = static_cast<int>(360. / 0.2);
       // TODO: Check resolution
-      res_pitch = 40. / 64 / 180. * M_PI; // 2 degrees of resolution
-      res_theta = 0.2 / 180. * M_PI; // 0.4 degrees
+      res_theta = 0.2 / 180. * M_PI; // 0.2 degrees
     }
-    outPointCloud.is_dense = false;
-    outPointCloud.resize(outPointCloud.height * outPointCloud.width);
-
+    
     double timebase;
     if (apply_timezone_offset) {
       timebase = lidarMsg->header.stamp.toSec() - 25200;
@@ -225,8 +216,15 @@ public:
       thetas.push_back(theta);
       pitches.push_back(pitch);
     }
+    outPointCloud.is_dense = false;
+    outPointCloud.width = static_cast<int>((max_theta - min_theta) / res_theta + 1);
+    outPointCloud.resize(outPointCloud.height * outPointCloud.width);
+    float res_pitch = (max_pitch - min_pitch) / (outPointCloud.height - 1);
 
     // std::cout << "min_theta: " << min_theta << ", max_theta: " << max_theta;
+    // std::cout << ", res_pitch: " << res_pitch / M_PI * 180 << "degrees";
+    // std::cout << ", res_theta: " << res_theta / M_PI * 180 << "degrees";
+    // std::cout << ", outPointCloud.height: " << outPointCloud.height << ", width: " << outPointCloud.width;
     // std::cout << ", min_pitch: " << min_pitch << ", max_pitch: " << max_pitch << std::endl;
 
     for (int pid = 0; pid < temp_pc.size(); ++pid) {
