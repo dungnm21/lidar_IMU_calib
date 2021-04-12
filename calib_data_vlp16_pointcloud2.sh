@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 bag_path="/home/maudzung/work/calibration/data/li_calib_data"
-# bag_path="/home/maudzung/work/calibration/data"
 
 outdoor_sync_bag_name=(
 # "Court-01.bag"
@@ -33,97 +32,13 @@ scan4map=15
 timeOffsetPadding=0.015
 topic_lidar="/velodyne_points"
 lidar_model="VLP_16"
-#################################
-
-# For VelodyneScan
-
-# outdoor_sync_bag_name=(
-# "Court-01.bag"
-# )
-# indoor_sync_bag_name=(
-# "Garage-01.bag"
-# )
-
-# imu_topic_name=(
-# "/imu1/data_sync"
-# )
-
-# topic_lidar="/velodyne_packets"
-
-# lidar_model="VLP_16"
-
-#################################
-
-# For VAI Velodyne data
-
-# bag_path="/home/maudzung/work/calibration/data/vai"
-# outdoor_sync_bag_name=(
-# "2021-01-12-17-47-22.bag"
-# )
-
-# imu_topic_name=(
-# "/imu/data"
-# )
-
-# bag_start=1
-# bag_durr=30
-# scan4map=15
-# timeOffsetPadding=0.015
-# topic_lidar="/lidar_front/velodyne_points"
-# lidar_model="VLP_32C"
-
-#################################
-
-#################################
-
-# For VAI Hesai data
-
-# bag_path="/home/maudzung/work/calibration/data/vai"
-# outdoor_sync_bag_name=(
-# "2021-03-24-14-16-38.bag"
-# # "2021-03-24-14-19-01.bag"
-# )
-
-# imu_topic_name=(
-# "/gps/imu"
-# )
-
-# bag_start=1
-# bag_durr=30
-# scan4map=15
-# timeOffsetPadding=0.015
-# topic_lidar="/hesai/pandar"
-# lidar_model="PANDAR_64"
-
-#################################
-
-#################################
-
-# For VAI Hesai data 2021/04/08
-
-bag_path="/home/maudzung/work/calibration/data/data_20210408"
-outdoor_sync_bag_name=(
-"tien_lui_trong_ham_no_asrr.bag"
-)
-
-imu_topic_name=(
-"/vehicle/imu/data_raw"
-)
-
-bag_start=1
-bag_durr=30
-scan4map=15
-timeOffsetPadding=0.015
-topic_lidar="/lidar/points_raw"
-lidar_model="PANDAR_64"
-apply_timezone_offset=false
 cov_threshold=0.0094
 
 #################################
 
 
-show_ui=true  #false
-# show_ui=false
+#show_ui=true  #false
+show_ui=false
 
 bag_count=-1
 sync_bag_name=(${outdoor_sync_bag_name[*]} ${indoor_sync_bag_name[*]})
