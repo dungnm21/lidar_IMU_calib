@@ -25,7 +25,8 @@ namespace licalib {
 
 bool InertialInitializer::EstimateRotation(
         TrajectoryManager::Ptr traj_manager,
-        const Eigen::aligned_vector<LiDAROdometry::OdomData>& odom_data) {
+        const Eigen::aligned_vector<LiDAROdometry::OdomData>& odom_data,
+        const double& cov_threshold) {
 
   int flags = kontiki::trajectories::EvalOrientation;
   std::shared_ptr<kontiki::trajectories::SplitTrajectory> p_traj
@@ -71,9 +72,7 @@ bool InertialInitializer::EstimateRotation(
   Eigen::Quaterniond q_ItoS_est(x);
   Eigen::Vector4d cov = svd.singularValues();
 
-  // std::cout << "estimation - cov(2): " << cov(2) << std::endl;
-
-  if (cov(2) > 0.25) {
+  if (cov(2) > cov_threshold) {
     q_ItoS_est_ = q_ItoS_est;
     rotaion_initialized_ = true;
     return true;

@@ -32,13 +32,16 @@ bag_durr=30
 scan4map=15
 timeOffsetPadding=0.015
 topic_lidar="/velodyne_points"
-
+lidar_model="VLP_16"
 #################################
 
 # For VelodyneScan
 
 # outdoor_sync_bag_name=(
 # "Court-01.bag"
+# )
+# indoor_sync_bag_name=(
+# "Garage-01.bag"
 # )
 
 # imu_topic_name=(
@@ -47,8 +50,7 @@ topic_lidar="/velodyne_points"
 
 # topic_lidar="/velodyne_packets"
 
-
-lidar_model="VLP_16"
+# lidar_model="VLP_16"
 
 #################################
 
@@ -114,7 +116,8 @@ scan4map=15
 timeOffsetPadding=0.015
 topic_lidar="/lidar/points_raw"
 lidar_model="PANDAR_64"
-apply_timezone_offset=true
+apply_timezone_offset=false
+cov_threshold=0.0094
 
 #################################
 
@@ -139,6 +142,7 @@ for i in "${!sync_bag_name[@]}"; do
         echo "ndtResolution:=${ndtResolution}"
         echo "topic_lidar:=${topic_lidar}"
         echo "apply_timezone_offset:=${apply_timezone_offset}"
+        echo "cov_threshold:=${cov_threshold}"
         echo "=============="
 
         roslaunch li_calib licalib_gui.launch \
@@ -152,6 +156,7 @@ for i in "${!sync_bag_name[@]}"; do
                           ndtResolution:="${ndtResolution}" \
                           show_ui:="${show_ui}" \
                           topic_lidar:="${topic_lidar}" \
-                          apply_timezone_offset:="${apply_timezone_offset}"
+                          apply_timezone_offset:="${apply_timezone_offset}" \
+                          cov_threshold:="${cov_threshold}"
     done
 done

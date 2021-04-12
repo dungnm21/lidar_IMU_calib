@@ -8,6 +8,7 @@
     <arg name="lidar_model"         default="VLP_16" />
     <arg name="ndtResolution"       default="0.5" /> <!-- 0.5 for indoor case and 1.0 for outdoor case -->
     <arg name="apply_timezone_offset"         default="false" />
+    <arg name="cov_threshold"         default="0.25" />
 
     <arg name="time_offset_padding" default="0.015" />
     <arg name="show_ui"    default="false" />
@@ -24,6 +25,7 @@
         <param name="scan4map"          type="double"   value="$(arg scan4map)" />
         <param name="ndtResolution"     type="double"   value="$(arg ndtResolution)" />
         <param name="apply_timezone_offset"     type="bool"   value="$(arg apply_timezone_offset)" />
+        <param name="cov_threshold"     type="double"   value="$(arg cov_threshold)" />
 
         <param name="time_offset_padding"   type="double"   value="$(arg time_offset_padding)" />
         <param name="show_ui"               type="bool"     value="$(arg show_ui)" />

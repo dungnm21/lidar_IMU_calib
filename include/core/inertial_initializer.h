@@ -41,7 +41,8 @@ public:
   }
 
   bool EstimateRotation(TrajectoryManager::Ptr traj_manager,
-                        const Eigen::aligned_vector<LiDAROdometry::OdomData>& odom_data);
+                        const Eigen::aligned_vector<LiDAROdometry::OdomData>& odom_data,
+                        const double& cov_threshold);
 
   bool isInitialized() {
     return rotaion_initialized_;

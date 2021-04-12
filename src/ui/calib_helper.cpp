@@ -52,6 +52,7 @@ CalibrHelper::CalibrHelper(ros::NodeHandle& nh)
   nh.param<double>("time_offset_padding", time_offset_padding, 0.015);
   nh.param<double>("knot_distance", knot_distance, 0.02);
   nh.param<bool>("apply_timezone_offset", apply_timezone_offset, false);
+  nh.param<double>("cov_threshold", cov_threshold_, 0.25);
 
   if (!createCacheFolder(bag_path_)) {
     calib_step_ = Error;
@@ -131,7 +132,8 @@ void CalibrHelper::Initialization() {
         || (lidar_odom_->get_odom_data().size() % 10 != 0))
       continue;
     if (rotation_initializer_->EstimateRotation(traj_manager_,
-                                                lidar_odom_->get_odom_data())) {
+                                                lidar_odom_->get_odom_data(),
+                                                cov_threshold_)) {
       Eigen::Quaterniond qItoLidar = rotation_initializer_->getQ_ItoS();
       traj_manager_->getCalibParamManager()->set_q_LtoI(qItoLidar.conjugate());
 

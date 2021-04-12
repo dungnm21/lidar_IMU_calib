@@ -98,6 +98,8 @@ protected:
   SurfelAssociation::Ptr surfel_association_;
 
   ScanUndistortion::Ptr scan_undistortion_;
+
+  double cov_threshold_;
 };
 
 }
