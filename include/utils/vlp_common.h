@@ -168,7 +168,7 @@ public:
       // outPointCloud.width = 1824;
       outPointCloud.width = static_cast<int>(360. / 0.2);
       res_pitch = 2. / 180. * M_PI; // 2 degrees of resolution
-      res_theta = 0.2 / 180. * M_PI; // 0.4 degrees
+      res_theta = 0.4 / 180. * M_PI; // 0.4 degrees
     }
     else if (m_modelType == ModelType::VLP_32C) { // sample data
       outPointCloud.height = 32;
