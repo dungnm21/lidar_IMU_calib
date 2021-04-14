@@ -22,39 +22,82 @@ Note that **Kontiki** and **Pangolin** are included in the *thirdparty* folder.
 
 ## Install
 
-Clone the source code for the project and build it.
+###  Ros melodic
 
 ```shell
-# init ROS workspace
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+sudo apt update
+sudo apt install ros-melodic-desktop-full
+```
+
+### Next commands
+
+```shell
+sudo apt-get install ros-melodic-pcl-ros ros-melodic-velodyne-msgs
 mkdir -p ~/catkin_li_calib/src
 cd ~/catkin_li_calib/src
 catkin_init_workspace
-
-# Clone the source code for the project and build it. 
-git clone https://github.com/APRIL-ZJU/lidar_IMU_calib
-
-# ndt_omp
+git clone https://github.com/dungnm21/lidar_IMU_calib.git
+cd lidar_IMU_calib/
+git checkout use_ring
+cd ..
 wstool init
 wstool merge lidar_IMU_calib/depend_pack.rosinstall
 wstool update
-# Pangolin
-cd lidar_imu_calib_beta
+cd lidar_IMU_calib
 ./build_submodules.sh
-## build
 cd ../..
+
+sudo apt-get install libgoogle-glog-dev libgflags-dev
+sudo apt-get install libatlas-base-dev
+sudo apt-get install libeigen3-dev
+sudo apt-get install libsuitesparse-dev
+git clone https://ceres-solver.googlesource.com/ceres-solver
+mkdir ceres-bin
+cd ceres-bin
+cmake ../ceres-solver
+make -j3
+make test
+sudo make install
+
+sudo mv /usr/include/flann/ext/lz4.h /usr/include/flann/ext/lz4.h.bak
+sudo mv /usr/include/flann/ext/lz4hc.h /usr/include/flann/ext/lz4.h.bak
+sudo ln -s /usr/include/lz4.h /usr/include/flann/ext/lz4.h
+sudo ln -s /usr/include/lz4hc.h /usr/include/flann/ext/lz4hc.h
+
 catkin_make
 source ./devel/setup.bash
 ```
+
 
 ## Examples
 
 Currently the LI-Calib toolkit only support `VLP-16` but it is easy to expanded for other LiDARs. 
 
-Run the calibration:
+- Velodyne 16 channels - _VelodyneScan_:
 
-```shell
-./src/lidar_IMU_calib/calib.sh
-```
+  ```shell
+  ./src/lidar_IMU_calib/calib_data_vlp16_scan.sh
+  ```
+
+- Velodyne 16 channels - _PointCloud2_:
+
+  ```shell
+  ./src/lidar_IMU_calib/calib_data_vlp16_pointcloud2.sh
+  ```
+
+- Velodyne 32 channels - _PointCloud2_:
+
+  ```shell
+  ./src/lidar_IMU_calib/calib_data_vlp32c.sh
+  ```
+
+- Pandar 64 channels - _PointCloud2_:
+
+  ```shell
+  ./src/lidar_IMU_calib/calib_data_20210412.sh
+  ```
 
 The options in `calib.sh` the have the following meaning:
 
