@@ -196,6 +196,8 @@ public:
 
     std::vector<float> thetas;
     std::vector<float> pitches;
+    thetas.reserve(temp_pc.size());
+    pitches.reserve(temp_pc.size());
 
     for (int pid = 0; pid < temp_pc.size(); ++pid) {
       float x = temp_pc.at(pid).x;
