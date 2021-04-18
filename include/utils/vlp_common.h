@@ -236,6 +236,23 @@ public:
       point.z = temp_pc.at(pid).z;
       point.intensity = temp_pc.at(pid).intensity;
 
+      const float& theta = thetas[pid];
+      const float& pitch = pitches[pid];
+      // Compute w, h
+      size_t h;
+      if (m_modelType == ModelType::PANDAR_64) {
+        h = getChannelIndex(pitch - min_pitch);
+      }
+      else {
+        h = static_cast<size_t>((pitch - min_pitch) / res_pitch);
+      }
+      size_t w = static_cast<size_t>((theta - min_theta) / res_theta);
+
+      // std::cout << "w = " << w << ", h = " << h << ", old_h = " << old_h << std::endl;
+      // std::cout << ", pc width = " << outPointCloud.width << ", pc height: " << outPointCloud.height << std::endl;
+
+      point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second // 55.56us for pandar64
+
       float distance = std::sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
       if (!pointInRange(distance)) {
         point.x = NAN;
@@ -243,25 +260,27 @@ public:
         point.z = NAN;
         point.intensity = 0;
       }
-      else {
-        const float& theta = thetas[pid];
-        const float& pitch = pitches[pid];
-        // Compute w, h
-        int h = static_cast<int>((pitch - min_pitch) / res_pitch);
-        int w = static_cast<int>((theta - min_theta) / res_theta);
-
-        // std::cout << "w = " << w << ", h = " << h;
-        // std::cout << ", pc width = " << outPointCloud.width << ", pc height: " << outPointCloud.height << std::endl;
-
-        point.timestamp = timebase + h * 2.304 * 1e-6 + w * 55.296 * 1e-6; // 1 sweep ~ 0.1 second // 55.56us for pandar64
-        outPointCloud.at(w, h) = point;
-      }
+      outPointCloud.at(w, h) = point;
     }
   }
 
 
-  inline double getExactTime(int dsr, int firing) const {
+  double getExactTime(int dsr, int firing) const {
     return mVLP16TimeBlock[firing][dsr];
+  }
+
+  size_t getChannelIndex(float angle) const {
+    // TODO: apply binary search later
+    angle = angle / M_PI * 180.; // degree
+    size_t idx = 0u; 
+    while (idx < 63) {
+      if ((pandar64_vertical_angle_[idx] <= angle) && (pandar64_vertical_angle_[idx + 1] > angle)) {
+        return idx;
+      }
+      ++idx;
+    }
+    
+    return idx;
   }
 
 private:
@@ -331,9 +350,39 @@ private:
         }
       }
     }
+    else if (modelType == PANDAR_64) {
+      /* From LiDAR specs
+      channel 1 - 5:    res = 3 degrees
+      channel 5 - 6:    res = 1 degrees 
+      channel 6 - 54:   res = 0.167 degrees 
+      channel 54 - 62:  res = 1 degrees 
+      channel 62 - 64:  res = 5.5 degrees 
+      */
+      double temp_angle[64];
+      temp_angle[0] = 0.;
+      for (int channel_idx = 1; channel_idx < 5; ++channel_idx){
+        temp_angle[channel_idx] = temp_angle[channel_idx - 1] + 3.;
+      }
+      for (int channel_idx = 5; channel_idx < 6; ++channel_idx){
+        temp_angle[channel_idx] = temp_angle[channel_idx - 1] + 1.;
+      }
+      for (int channel_idx = 6; channel_idx < 54; ++channel_idx){
+        temp_angle[channel_idx] = temp_angle[channel_idx - 1] + 0.167;
+      }
+      for (int channel_idx = 54; channel_idx < 62; ++channel_idx){
+        temp_angle[channel_idx] = temp_angle[channel_idx - 1] + 1.;
+      }
+      for (int channel_idx = 62; channel_idx < 64; ++channel_idx){
+        temp_angle[channel_idx] = temp_angle[channel_idx - 1] + 5.5;
+      }
+
+      for (int channel_idx = 0; channel_idx < 64; ++channel_idx){
+        pandar64_vertical_angle_[channel_idx] = 40. - temp_angle[63 - channel_idx]; // degrees
+      }
+    }
   }
 
-  inline bool pointInRange(float range) const {
+  bool pointInRange(float range) const {
     return (range >= m_config.min_range
             && range <= m_config.max_range);
   }
@@ -402,6 +451,7 @@ private:
   ModelType m_modelType;
 
   double mVLP16TimeBlock[1824][16];
+  double pandar64_vertical_angle_[64];
 };
 
 }
